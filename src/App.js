@@ -56,7 +56,6 @@ function App() {
       .finally(() => setLoading(false));
   }, [counter]);
 
-  // lyfta ut:
   function showGitHubRepo(githubRepo) {
     return (
       <div className="repo-row-container" key={githubRepo.id}>
@@ -76,7 +75,6 @@ function App() {
     );
   }
 
-  // kanske lyfta ut?:
   function showLoading(loading) {
     return (
       <div className="loading-row-container" key={loading.id}>
@@ -84,7 +82,7 @@ function App() {
       </div>
     );
   }
-  // kanske lyfta ut?:
+
   function showError(error) {
     return (
       <div className="error-row-container" key={error.id}>
@@ -92,7 +90,7 @@ function App() {
       </div>
     );
   }
-  // kanske lyfta ut knappar om jag hinner
+
   return (
     <div id="app-container">
       <div></div>
