@@ -1,224 +1,160 @@
 import React from "react";
-// import { useState } from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
 // `´nbNB{}[]
 
+const linkdata = [
+  "eslint/eslint",
+  "oakwood/front-end-questions",
+  "babel/babel",
+  "webpack/webpack",
+  "storybooks/storybook",
+  "facebook/react",
+  "reactjs/redux",
+  "expressjs/express",
+  //  *test* "error/error" *test* ,
+  //  "IlluminatorWatch/github-step",
+  //  *test* "error/error" *test* ,
+];
+
 function App() {
-  const linkdata = [
-    "eslint/eslint",
-    "oakwood/front-end-questions",
-    "babel/babel",
-    "webpack/webpack",
-    "storybooks/storybook",
-    "facebook/react",
-    "reactjs/redux",
-    "expressjs/express",
-  ];
-
-  // const [username, setUsername] = useState(""); // username variable
-  // const [loading, setLoading] = useState(false); // boolean
-  // const [repos, setRepos] = useState([]); // array of repos
-  const [userName, setUsername] = useState([linkdata]); // username variable
-  // const [userName, setUsername] = useState([{ linkdata }]); // username variable
-  // const [githubRepoName, setGithubRepoName] = useState("express"); // githubRepoName variable
-  const [gitHubRepos, setGitHubRepos] = useState([]);
-  // const [loading, setLoading] = useState(false); // boolean
-  // const [counter, setCounter] = useState(0);
-
-  // Extra
-  // const [error, setError] = useState(null);
+  const [gitHubRepo, setGitHubRepo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [counter, setCounter] = useState(0);
+  const [error, setError] = useState(null);
 
   function handleButtonClickDecrease() {
-    searchGitHubRepos(userName);
-    // setUsername((previousState) => previousState - 1);
-    setTimeout(() => {
-      setUsername((previousState) => previousState - 1);
-    }, 2000);
-    // searchGitHubRepos(userName);
-    // setCounter((previousState) => previousState - 1);
+    setCounter((previousState) => previousState - 1);
   }
 
   function handleButtonClickIncrease() {
-    searchGitHubRepos(userName);
-    // setUsername((nextState) => nextState + 1);
-    setTimeout(() => {
-      setUsername((nextState) => nextState + 1);
-    }, 2000);
-    // searchGitHubRepos(userName);
-    // setCounter((nextState) => nextState + 1);
+    setCounter((nextState) => nextState + 1);
   }
 
   useEffect(() => {
-    setGitHubRepos([]);
-    // setInfo({});
-  }, [userName]);
+    setLoading(true);
+    setGitHubRepo(null);
+    setError(null);
 
-  // useEffect(() => {
-  //   searchGitHubRepos();
-  // }, []);
-
-  // function submitForm(event) {
-  //   event.preventDefault();
-  //   searchGitHubRepos();
-  // }
-
-  // function handleSubmit(e) {
-  //   // no fullpage submit by the browser, we do the requesting and submition:
-  //   e.preventDefault();
-  //   searchRepos();
-  // }
-
-  function searchGitHubRepos() {
+    let repo = linkdata[counter];
     axios({
       method: "GET",
-      url: `https://api.github.com/repos/${userName}`,
-    }).then((response) => {
-      setGitHubRepos(response.data);
-      // console.log("response data api github: " + response.data);
-    });
-  }
+      url: `https://api.github.com/repos/${repo}`,
+    })
+      .then((response) => {
+        setGitHubRepo(response.data);
+      })
+      .catch((err) => {
+        if (err.response && err.response.status === 404) {
+          setError(`The repo: '${repo}' does not exist.`);
+        } else {
+          setError(`Oops something went wrong.`);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [counter]);
 
+  // lyfta ut:
   function showGitHubRepo(githubRepo) {
-    // console.log(githubRepo);
     return (
-      <li className="repo-row-container" key={githubRepo.id}>
-        <h3 className="repo-full-name">{githubRepo.full_name}</h3>
-        <h3 className="repo-description">{githubRepo.description}</h3>
-        <h3 className="repo-stargazers-count">{githubRepo.stargazers_count}</h3>
-      </li>
+      <div className="repo-row-container" key={githubRepo.id}>
+        <h3 className="repo-full-name">
+          Repo Name&ensp;<div className="dott-container">&#8231;</div>
+          &ensp;{githubRepo.full_name}
+        </h3>
+        <h3 className="repo-description">
+          Description&ensp;<div className="dott-container">&#8231;</div>
+          &ensp;{githubRepo.description}
+        </h3>
+        <h3 className="repo-stargazers-count">
+          &#10023;&ensp;<div className="dott-container">&#8231;</div>&ensp;
+          {githubRepo.stargazers_count}
+        </h3>
+      </div>
     );
   }
 
+  // kanske lyfta ut?:
+  function showLoading(loading) {
+    return (
+      <div className="loading-row-container" key={loading.id}>
+        <h3 className="loading-loading">Repo is loading</h3>
+      </div>
+    );
+  }
+  // kanske lyfta ut?:
+  function showError(error) {
+    return (
+      <div className="error-row-container" key={error.id}>
+        <h3 className="error-error">{error}</h3>
+      </div>
+    );
+  }
+  // kanske lyfta ut knappar om jag hinner
   return (
     <div id="app-container">
-      <div>
-        <ul className="list-item-container-left">
-          <li className="left-container-row">
-            {gitHubRepos.map(showGitHubRepo)}
-          </li>
-        </ul>
-      </div>
-      <div className="button-container">
-        {/* <form className="form">
-          <input
-            className="input"
-            placeholder="Gitrepo UserName"
-            value={userName}
-            onChange={(event) => setUsername(event.target.value)}
-          />
-          <button
-            className="button"
-            id="git-button-search"
-            onClick={submitForm}
-          >
-            Searching
-          </button>
-        </form> */}
-      </div>
+      <div></div>
+      <div className="button-container"></div>
       <div id="app-counter-container">
         <div id="button-container">
-          <div id="button-container-one">
-            <button id="decrement" onClick={handleButtonClickDecrease}>
-              <div id="div-tag-minus-container">
-                <div className="animate-charcter-decrement" id="div-tag-minus">
-                  -&ensp;
+          <div id="button-container-decrement">
+            <button
+              id="decrement"
+              onClick={handleButtonClickDecrease}
+              disabled={counter === 0}
+            >
+              <div id="div-tag-decrement-container">
+                <div
+                  className="animate-charcter-decrement"
+                  id="div-tag-decrement"
+                >
+                  -{/* &ensp; */}
                 </div>
               </div>
               decrement
             </button>
-            {/* <button id="decrement" onClick={() => setCounter(counter - 1)}>
-              <div id="div-tag-minus-container">
-                <div className="animate-charcter-decrement" id="div-tag-minus">
-                  -&ensp;
-                </div>
-              </div>
-              decrement
-            </button> */}
           </div>
-          {/* <div>-&nbsp;Space&emsp;Space&ensp;Space&nbsp;Space+&nbsp;</div> */}
-          <div id="button-container-two">
-            {/* <div id="counter-container">
-              <div id="counter">Counter: {counter}</div>
-            </div> */}
+          <div id="counter-container-outer">
             <div id="counter-container">
-              <div id="counter">setUsername indexOf: {userName.indexOf}</div>
-              {/* <div id="counter">setUsername indexOf: {userName}</div> */}
-              {/* <div>
-                {userName.map((repo) => (
-                  <li>{repo}</li>
-                ))}
-              </div> */}
+              <div id="counter">Counter: {counter}</div>
             </div>
           </div>
-          <div id="button-container-three">
-            <button id="increment" onClick={handleButtonClickIncrease}>
-              <div id="div-tag-plus-container">
-                <div className="animate-charcter-increment" id="div-tag-plus">
-                  +&ensp;
+          <div id="button-container-increment">
+            <button
+              id="increment"
+              onClick={handleButtonClickIncrease}
+              disabled={counter === linkdata.length - 1}
+            >
+              <div id="div-tag-increment-container">
+                <div
+                  className="animate-charcter-increment"
+                  id="div-tag-increment"
+                >
+                  +{/* &ensp; */}
                 </div>
               </div>
               increment
             </button>
-            {/* <button id="increment" onClick={() => setCounter(counter + 1)}>
-              <div id="div-tag-plus-container">
-                <div className="animate-charcter-increment" id="div-tag-plus">
-                  +&ensp;
-                </div>
-              </div>
-              increment
-            </button> */}
           </div>
-          {/* <div>
-            {repos.map((repo) => (
-              <li>{repo}</li>
-            ))}
-          </div> */}
-        </div>
-        <div>
-          {/* <button id="decrement" onClick={() => setGitRepos(gitRepos - 1)}>
-            <div id="div-tag-minus-container">
-              <div className="animate-charcter-decrement" id="div-tag-minus">
-                -&ensp;
-              </div>
+          <div className="response-container">
+            <div className="repo-container">
+              {gitHubRepo ? showGitHubRepo(gitHubRepo) : null}
             </div>
-            decrement
-          </button> */}
-          {/* <div>{gitRepos}</div> */}
-          {/* <button id="increment" onClick={() => setGitRepos(gitRepos + 1)}>
-            <div id="div-tag-plus-container">
-              <div className="animate-charcter-increment" id="div-tag-plus">
-                +&ensp;
-              </div>
+            <div className="loading-container">
+              {loading ? showLoading(loading) : null}
             </div>
-            increment
-          </button> */}
-          <div></div>
+            <div className="error-container">
+              {error ? showError(error) : null}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    //   {/* {error ? <h6>Something went wrong: {error}</h6> : <h6>Suxxez!</h6>} */}
-    //   <button id="increment-repo" onClick={() => setUsername(username + 1)}>
-    //     <div id="div-tag-plus-container">
-    //       <div className="animate-charcter-increment" id="div-tag-plus">
-    //         +&ensp;
-    //       </div>
-    //     </div>
-    //     increment step one github repo forward
-    //   </button>
-    //   <button id="decrement-repo" onClick={() => setUsername(username - 1)}>
-    //     <div id="div-tag-plus-container">
-    //       <div className="animate-charcter-increment" id="div-tag-minus">
-    //         -&ensp;
-    //       </div>
-    //     </div>
-    //     decrement step one github repo back
-    //   </button>
-    // </div>
   );
 }
+
+// `´nbNB{}[]
 
 export default App;
